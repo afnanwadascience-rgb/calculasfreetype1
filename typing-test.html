@@ -1,0 +1,126 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <title>Typing Test — Calculas Typing</title>
+
+  <meta
+    name="description"
+    content="Calculas Typing 30-second typing speed and accuracy test."
+  >
+
+  <meta name="theme-color" content="#0d0e10">
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="assets/style.css">
+
+  <style>
+    :root {
+      --sans: "Space Grotesk", system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+      --mono: "DM Mono", ui-monospace, SFMono-Regular,
+        Menlo, Monaco, Consolas, monospace;
+    }
+
+    .typing-page {
+      min-height: 100vh;
+      padding-top: 32px;
+      padding-bottom: 80px;
+    }
+
+    .test-nav {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .test-nav a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .back-link {
+      opacity: .75;
+      transition: opacity .2s ease;
+    }
+
+    .back-link:hover {
+      opacity: 1;
+    }
+
+    .test-brand {
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .typing-test-page {
+      min-height: calc(100vh - 100px);
+    }
+
+    .typing-test-page .typing-test {
+      min-height: auto;
+    }
+  </style>
+</head>
+
+<body>
+
+  <a class="skip" href="#main">Skip to main content</a>
+
+  <div class="typing-page">
+
+    <nav class="test-nav" aria-label="Typing test navigation">
+      <a class="back-link" href="index.html">← Back to Calculas Typing</a>
+
+      <a class="test-brand" href="index.html">
+        Calculas / Typing
+      </a>
+    </nav>
+
+    <main id="main" class="typing-test-page">
+
+      <section
+        class="typing-test"
+        id="typing-test"
+        aria-label="Typing test"
+      ></section>
+
+    </main>
+
+  </div>
+
+  <script src="assets/engine.js"></script>
+  <script src="assets/content.js"></script>
+  <script src="assets/sound.js"></script>
+  <script src="assets/typing-test.js"></script>
+
+</body>
+</html>
+
