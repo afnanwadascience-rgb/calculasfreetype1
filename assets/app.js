@@ -1,5 +1,5 @@
 
-/*! Calculas Typing app - functional UI layer for the dedicated typing test page. */
+/*! Calculas Typing app - dedicated typing test controller. */
 (function () {
   'use strict';
 
@@ -22,11 +22,6 @@
   function buildTestUI() {
     if (!DOM.testSection) return;
 
-    /*
-     * typing-test.html provides the #typing-test container.
-     * app.js only fills that container; it does not create
-     * another #typing-test section inside it.
-     */
     DOM.testSection.innerHTML = [
       '<div class="wrap tt-wrap">',
         '<div class="tt">',
@@ -207,98 +202,156 @@
   }
 
   function cacheTestDom() {
-    DOM.modeButtons = document.querySelectorAll('#typing-test .mode');
-
-    DOM.soundToggle = document.getElementById('sound-toggle');
-    DOM.volumeSlider = document.getElementById('sound-vol');
-
-    DOM.passage = document.getElementById('passage');
-    DOM.typingInput = document.getElementById('typing-input');
-    DOM.typingArea = document.getElementById('typing-area');
-
-    DOM.time = document.querySelector(
-      '#typing-test .tt-stats .st-v[data-s="time"]'
+    DOM.modeButtons = document.querySelectorAll(
+      '#typing-test .mode'
     );
 
-    DOM.wpm = document.querySelector(
-      '#typing-test .tt-stats .st-v[data-s="wpm"]'
-    );
+    DOM.soundToggle =
+      document.getElementById('sound-toggle');
 
-    DOM.accuracy = document.querySelector(
-      '#typing-test .tt-stats .st-v[data-s="acc"]'
-    );
+    DOM.volumeSlider =
+      document.getElementById('sound-vol');
 
-    DOM.errors = document.querySelector(
-      '#typing-test .tt-stats .st-v[data-s="bad"]'
-    );
+    DOM.passage =
+      document.getElementById('passage');
 
-    DOM.progress = document.getElementById('progress-bar');
+    DOM.typingInput =
+      document.getElementById('typing-input');
 
-    DOM.result = document.querySelector(
-      '#typing-test .tt-result'
-    );
+    DOM.typingArea =
+      document.getElementById('typing-area');
 
-    DOM.resultWpm = document.querySelector(
-      '[data-r="wpm"]'
-    );
+    DOM.time =
+      document.querySelector(
+        '#typing-test .tt-stats [data-s="time"]'
+      );
 
-    DOM.resultAcc = document.querySelector(
-      '[data-r="acc"]'
-    );
+    DOM.wpm =
+      document.querySelector(
+        '#typing-test .tt-stats [data-s="wpm"]'
+      );
 
-    DOM.resultBad = document.querySelector(
-      '[data-r="bad"]'
-    );
+    DOM.accuracy =
+      document.querySelector(
+        '#typing-test .tt-stats [data-s="acc"]'
+      );
 
-    DOM.resultMode = document.querySelector(
-      '[data-r="mode"]'
-    );
+    DOM.errors =
+      document.querySelector(
+        '#typing-test .tt-stats [data-s="bad"]'
+      );
 
-    DOM.resultDuration = document.querySelector(
-      '[data-r="duration"]'
-    );
+    DOM.progress =
+      document.getElementById('progress-bar');
 
-    DOM.resultNote = document.querySelector(
-      '[data-r="note"]'
-    );
+    DOM.result =
+      document.querySelector(
+        '#typing-test .tt-result'
+      );
 
-    DOM.again = document.querySelector(
-      '[data-act="again"]'
-    );
+    DOM.resultWpm =
+      document.querySelector(
+        '[data-r="wpm"]'
+      );
 
-    DOM.history = document.getElementById('history');
-    DOM.bestWpm = document.getElementById('bestWpm');
-    DOM.testCount = document.getElementById('testCount');
+    DOM.resultAcc =
+      document.querySelector(
+        '[data-r="acc"]'
+      );
+
+    DOM.resultBad =
+      document.querySelector(
+        '[data-r="bad"]'
+      );
+
+    DOM.resultMode =
+      document.querySelector(
+        '[data-r="mode"]'
+      );
+
+    DOM.resultDuration =
+      document.querySelector(
+        '[data-r="duration"]'
+      );
+
+    DOM.resultNote =
+      document.querySelector(
+        '[data-r="note"]'
+      );
+
+    DOM.again =
+      document.querySelector(
+        '[data-act="again"]'
+      );
+
+    DOM.history =
+      document.getElementById('history');
+
+    DOM.bestWpm =
+      document.getElementById('bestWpm');
+
+    DOM.testCount =
+      document.getElementById('testCount');
+  }
+
+  function setupModes() {
+    DOM.modeButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        state.mode =
+          this.getAttribute('data-mode') ||
+          'standard';
+
+        DOM.modeButtons.forEach(function (item) {
+          var active = item === button;
+
+          item.classList.toggle(
+            'active',
+            active
+          );
+
+          item.setAttribute(
+            'aria-pressed',
+            String(active)
+          );
+        });
+
+        resetTest(
+          state.mode,
+          true
+        );
+      });
+    });
   }
 
   function setupSoundControls() {
-    if (typeof CalculasSound === 'undefined') {
+    if (
+      typeof CalculasSound ===
+      'undefined'
+    ) {
       console.warn(
-        '[Calculas Typing] CalculasSound is not available.'
+        '[Calculas Typing] CalculasSound is not loaded.'
       );
+
       return;
     }
 
-    var soundEnabled =
+    var enabled =
       CalculasSound.isEnabled();
 
-    var volume =
-      CalculasSound.getVolume();
-
     if (DOM.soundToggle) {
-      updateSoundButton(soundEnabled);
+      updateSoundButton(enabled);
 
       DOM.soundToggle.addEventListener(
         'click',
         function () {
-          soundEnabled = !soundEnabled;
+          enabled = !enabled;
 
           CalculasSound.setEnabled(
-            soundEnabled
+            enabled
           );
 
           updateSoundButton(
-            soundEnabled
+            enabled
           );
         }
       );
@@ -306,7 +359,9 @@
 
     if (DOM.volumeSlider) {
       DOM.volumeSlider.value =
-        String(volume);
+        String(
+          CalculasSound.getVolume()
+        );
 
       DOM.volumeSlider.addEventListener(
         'input',
@@ -338,44 +393,6 @@
     );
   }
 
-  function setupModes() {
-    DOM.modeButtons.forEach(
-      function (button) {
-        button.addEventListener(
-          'click',
-          function () {
-            state.mode =
-              this.getAttribute(
-                'data-mode'
-              ) || 'standard';
-
-            DOM.modeButtons.forEach(
-              function (item) {
-                var active =
-                  item === button;
-
-                item.classList.toggle(
-                  'active',
-                  active
-                );
-
-                item.setAttribute(
-                  'aria-pressed',
-                  String(active)
-                );
-              }
-            );
-
-            resetTest(
-              state.mode,
-              true
-            );
-          }
-        );
-      }
-    );
-  }
-
   function setupControls() {
     if (DOM.again) {
       DOM.again.addEventListener(
@@ -385,6 +402,24 @@
             state.mode,
             true
           );
+        }
+      );
+    }
+
+    if (DOM.typingArea) {
+      DOM.typingArea.addEventListener(
+        'click',
+        function () {
+          focusInput(0);
+        }
+      );
+    }
+
+    if (DOM.passage) {
+      DOM.passage.addEventListener(
+        'click',
+        function () {
+          focusInput(0);
         }
       );
     }
@@ -406,6 +441,9 @@
         var now =
           performance.now();
 
+        /*
+         * Special keys.
+         */
         if (event.key === 'Escape') {
           event.preventDefault();
 
@@ -424,15 +462,16 @@
             typeof state.engine.backspace ===
             'function'
           ) {
-            state.engine.backspace();
+            var changed =
+              state.engine.backspace();
 
-            playSound('back');
+            if (changed) {
+              playSound('back');
 
-            DOM.typingInput.value =
-              getEngineBuffer();
-
-            renderHighlight();
-            updateStats(now);
+              syncInput();
+              renderHighlight();
+              updateStats(now);
+            }
           }
 
           return;
@@ -445,22 +484,26 @@
             typeof state.engine.space ===
             'function'
           ) {
-            state.engine.space(now);
+            var moved =
+              state.engine.space(now);
 
-            playSound('space');
+            if (moved) {
+              playSound('space');
 
-            DOM.typingInput.value =
-              getEngineBuffer();
-
-            startTimerIfNeeded();
-            renderHighlight();
-            updateStats(now);
-            checkCompletion();
+              syncInput();
+              startTimerIfNeeded();
+              renderHighlight();
+              updateStats(now);
+              checkCompletion();
+            }
           }
 
           return;
         }
 
+        /*
+         * Ignore modifier/navigation keys.
+         */
         if (
           event.key.length !== 1 ||
           event.ctrlKey ||
@@ -472,25 +515,31 @@
 
         event.preventDefault();
 
+        /*
+         * IMPORTANT:
+         * The real engine method is .type(),
+         * not .input().
+         */
         if (
-          typeof state.engine.input ===
+          typeof state.engine.type ===
           'function'
         ) {
-          state.engine.input(
-            event.key,
-            now
-          );
+          var accepted =
+            state.engine.type(
+              event.key,
+              now
+            );
+
+          if (accepted) {
+            playSound('key');
+
+            syncInput();
+            startTimerIfNeeded();
+            renderHighlight();
+            updateStats(now);
+            checkCompletion();
+          }
         }
-
-        playSound('key');
-
-        DOM.typingInput.value =
-          getEngineBuffer();
-
-        startTimerIfNeeded();
-        renderHighlight();
-        updateStats(now);
-        checkCompletion();
       }
     );
 
@@ -500,6 +549,30 @@
         event.preventDefault();
       }
     );
+
+    DOM.typingInput.addEventListener(
+      'input',
+      function () {
+        /*
+         * Keyboard events are the source of truth.
+         * Prevent browser typing from changing the
+         * textarea independently of the engine.
+         */
+        syncInput();
+      }
+    );
+  }
+
+  function syncInput() {
+    if (
+      DOM.typingInput &&
+      state.engine &&
+      typeof state.engine.buffer ===
+        'function'
+    ) {
+      DOM.typingInput.value =
+        state.engine.buffer();
+    }
   }
 
   function playSound(type) {
@@ -517,166 +590,198 @@
     }
 
     if (
-      type === 'back' &&
-      typeof CalculasSound.back ===
-      'function'
-    ) {
-      CalculasSound.back();
-    } else if (
-      type === 'space' &&
-      typeof CalculasSound.space ===
-      'function'
-    ) {
-      CalculasSound.space();
-    } else if (
       type === 'key' &&
       typeof CalculasSound.key ===
       'function'
     ) {
       CalculasSound.key();
     }
-  }
 
-  function getEngineBuffer() {
     if (
-      state.engine &&
-      typeof state.engine.buffer ===
+      type === 'space' &&
+      typeof CalculasSound.space ===
       'function'
     ) {
-      return state.engine.buffer();
+      CalculasSound.space();
     }
 
-    return '';
+    if (
+      type === 'back' &&
+      typeof CalculasSound.back ===
+      'function'
+    ) {
+      CalculasSound.back();
+    }
   }
 
-  function getContentForMode(mode) {
+  function randomItem(list) {
+    if (
+      !Array.isArray(list) ||
+      !list.length
+    ) {
+      return '';
+    }
+
+    return list[
+      Math.floor(
+        Math.random() *
+        list.length
+      )
+    ];
+  }
+
+  function buildWords(mode) {
     if (
       typeof CalculasContent ===
       'undefined'
     ) {
-      return null;
+      return [
+        'typing',
+        'practice',
+        'builds',
+        'speed',
+        'accuracy',
+        'focus'
+      ];
     }
 
-    try {
-      if (
-        mode === 'numbers' &&
-        typeof CalculasContent.numbers ===
-        'function'
-      ) {
-        return CalculasContent.numbers();
-      }
+    /*
+     * Standard:
+     * Use one of the original paragraphs and
+     * repeat/add content when necessary.
+     */
+    if (mode === 'standard') {
+      var paragraph =
+        randomItem(
+          CalculasContent.paragraphs
+        );
 
       if (
-        mode === 'punctuation' &&
-        typeof CalculasContent.punctuation ===
-        'function'
+        paragraph &&
+        typeof CalculasContent.gen ===
+        'object'
       ) {
-        return CalculasContent.punctuation();
-      }
+        var base =
+          CalculasContent.gen.clean(
+            paragraph
+          );
 
-      if (
-        typeof CalculasContent.standard ===
-        'function'
-      ) {
-        return CalculasContent.standard();
+        var words =
+          base.slice();
+
+        /*
+         * 30 seconds needs enough text.
+         */
+        while (
+          words.length < 90
+        ) {
+          var extra =
+            CalculasContent.gen.clean(
+              randomItem(
+                CalculasContent.paragraphs
+              ) || ''
+            );
+
+          words =
+            words.concat(
+              extra
+            );
+        }
+
+        return words.slice(
+          0,
+          140
+        );
       }
-    } catch (error) {
-      console.error(
-        '[Calculas Typing] Content error:',
-        error
+    }
+
+    /*
+     * Numbers.
+     */
+    if (
+      mode === 'numbers' &&
+      CalculasContent.gen &&
+      typeof CalculasContent.gen.numbers ===
+        'function'
+    ) {
+      return CalculasContent.gen.numbers(
+        120
       );
     }
 
-    return null;
-  }
-
-  function makeWordsForMode(mode) {
-    var source =
-      getContentForMode(mode);
-
+    /*
+     * Punctuation.
+     */
     if (
-      Array.isArray(source)
+      mode === 'punctuation' &&
+      CalculasContent.gen &&
+      typeof CalculasContent.gen.punctuate ===
+        'function'
     ) {
-      return source
-        .join(' ')
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean);
-    }
+      var punctuationBase =
+        CalculasContent.gen.pick(
+          CalculasContent.common,
+          120
+        );
 
-    if (
-      typeof source ===
-        'string' &&
-      source.trim()
-    ) {
-      return source
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean);
+      return CalculasContent.gen.punctuate(
+        punctuationBase
+      );
     }
 
     return [
-      'Typing',
+      'typing',
       'practice',
-      'helps',
-      'you',
-      'build',
+      'builds',
       'speed',
       'accuracy',
-      'focus',
-      'and',
-      'confidence',
-      'one',
-      'steady',
-      'keystroke',
-      'at',
-      'a',
-      'time'
+      'focus'
     ];
   }
 
+  /*
+   * IMPORTANT:
+   * The real engine API is:
+   * CalculasEngine.create(words, options)
+   */
   function createEngine(words) {
     if (
       typeof CalculasEngine ===
       'undefined'
     ) {
       console.error(
-        '[Calculas Typing] CalculasEngine is not available.'
+        '[Calculas Typing] CalculasEngine is not loaded.'
+      );
+
+      return null;
+    }
+
+    if (
+      typeof CalculasEngine.create !==
+      'function'
+    ) {
+      console.error(
+        '[Calculas Typing] CalculasEngine.create() is missing.'
       );
 
       return null;
     }
 
     try {
-      return new CalculasEngine({
-        words: words,
-        duration: state.duration,
-        mode: state.mode
-      });
-    } catch (firstError) {
-      console.warn(
-        '[Calculas Typing] Object constructor failed:',
-        firstError
+      return CalculasEngine.create(
+        words,
+        {
+          duration:
+            state.duration
+        }
+      );
+    } catch (error) {
+      console.error(
+        '[Calculas Typing] Engine creation failed:',
+        error
       );
 
-      try {
-        return CalculasEngine(
-          words,
-          {
-            duration:
-              state.duration,
-            mode:
-              state.mode
-          }
-        );
-      } catch (secondError) {
-        console.error(
-          '[Calculas Typing] Unable to create engine:',
-          secondError
-        );
-
-        return null;
-      }
+      return null;
     }
   }
 
@@ -693,7 +798,7 @@
     stopTimer();
 
     state.words =
-      makeWordsForMode(
+      buildWords(
         state.mode
       );
 
@@ -702,19 +807,21 @@
         state.words
       );
 
-    resetStats();
-    renderPassage();
-
     if (DOM.result) {
-      DOM.result.hidden = true;
+      DOM.result.hidden =
+        true;
     }
 
     if (DOM.typingInput) {
-      DOM.typingInput.value = '';
+      DOM.typingInput.value =
+        '';
     }
 
+    resetStats();
+    renderPassage();
+
     if (focus) {
-      focusInput(30);
+      focusInput(40);
     }
   }
 
@@ -746,9 +853,12 @@
   }
 
   function renderPassage() {
-    if (!DOM.passage) return;
+    if (!DOM.passage) {
+      return;
+    }
 
-    DOM.passage.innerHTML = '';
+    DOM.passage.innerHTML =
+      '';
 
     state.words.forEach(
       function (
@@ -764,7 +874,9 @@
           'w';
 
         wordElement.dataset.word =
-          String(wordIndex);
+          String(
+            wordIndex
+          );
 
         for (
           var i = 0;
@@ -808,7 +920,12 @@
   }
 
   function renderHighlight() {
-    if (!state.engine) return;
+    if (
+      !state.engine ||
+      !DOM.passage
+    ) {
+      return;
+    }
 
     if (
       typeof state.engine.index !==
@@ -822,11 +939,8 @@
     var currentIndex =
       state.engine.index();
 
-    var currentBuffer =
+    var buffer =
       state.engine.buffer();
-
-    var words =
-      state.words;
 
     var wordElements =
       DOM.passage.querySelectorAll(
@@ -838,12 +952,12 @@
         wordElement,
         wordIndex
       ) {
-        var charElements =
+        var chars =
           wordElement.querySelectorAll(
             '.c'
           );
 
-        charElements.forEach(
+        chars.forEach(
           function (
             charElement,
             charIndex
@@ -869,17 +983,20 @@
               return;
             }
 
+            var target =
+              state.words[
+                wordIndex
+              ] || '';
+
             if (
               charIndex <
-              currentBuffer.length
+              buffer.length
             ) {
               charElement.classList.add(
-                currentBuffer.charAt(
+                buffer.charAt(
                   charIndex
                 ) ===
-                  words[
-                    wordIndex
-                  ].charAt(
+                  target.charAt(
                     charIndex
                   )
                   ? 'ok'
@@ -889,7 +1006,7 @@
 
             if (
               charIndex ===
-              currentBuffer.length
+              buffer.length
             ) {
               charElement.classList.add(
                 'cur'
@@ -928,6 +1045,18 @@
       return;
     }
 
+    /*
+     * The engine starts when the first
+     * character/space is typed.
+     */
+    if (
+      typeof state.engine.started !==
+        'function' ||
+      !state.engine.started()
+    ) {
+      return;
+    }
+
     state.started = true;
 
     stopTimer();
@@ -942,7 +1071,7 @@
 
           if (
             typeof state.engine.tick ===
-            'function' &&
+              'function' &&
             state.engine.tick(
               now
             )
@@ -956,13 +1085,15 @@
 
   function stopTimer() {
     if (
-      state.timerId !== null
+      state.timerId !==
+      null
     ) {
       window.clearInterval(
         state.timerId
       );
 
-      state.timerId = null;
+      state.timerId =
+        null;
     }
   }
 
@@ -1050,17 +1181,23 @@
     }
 
     if (DOM.progress) {
-      var wordCount =
+      var completed =
         Number(
           snapshot.words
         ) || 0;
 
-      var percent =
+      var total =
+        typeof state.engine.count ===
+        'function'
+          ? state.engine.count()
+          : state.words.length;
+
+      var percentage =
         (
-          wordCount /
+          completed /
           Math.max(
             1,
-            state.words.length
+            total
           )
         ) * 100;
 
@@ -1069,7 +1206,7 @@
           0,
           Math.min(
             100,
-            percent
+            percentage
           )
         ) + '%';
     }
@@ -1083,19 +1220,13 @@
       return;
     }
 
+    /*
+     * The real engine uses isFinished().
+     */
     if (
-      typeof state.engine.finished ===
+      typeof state.engine.isFinished ===
         'function' &&
-      state.engine.finished()
-    ) {
-      finishTest();
-      return;
-    }
-
-    if (
-      typeof state.engine.complete ===
-        'function' &&
-      state.engine.complete()
+      state.engine.isFinished()
     ) {
       finishTest();
     }
@@ -1180,7 +1311,8 @@
     if (DOM.resultDuration) {
       DOM.resultDuration.textContent =
         (
-          elapsed / 1000
+          elapsed /
+          1000
         ).toFixed(1) +
         's';
     }
@@ -1211,6 +1343,28 @@
     );
   }
 
+  function readHistory() {
+    try {
+      var raw =
+        localStorage.getItem(
+          'calculasTypingHistory'
+        );
+
+      var parsed =
+        raw
+          ? JSON.parse(raw)
+          : [];
+
+      return Array.isArray(
+        parsed
+      )
+        ? parsed
+        : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
   function saveResult(
     wpm,
     accuracy,
@@ -1228,7 +1382,8 @@
       errors: errors,
       duration:
         (
-          elapsed / 1000
+          elapsed /
+          1000
         ).toFixed(1),
       mode: mode,
       date:
@@ -1258,34 +1413,12 @@
         )
       );
     } catch (error) {
-      /* localStorage optional */
+      /* localStorage is optional */
     }
 
     renderHistory(
       history
     );
-  }
-
-  function readHistory() {
-    try {
-      var raw =
-        localStorage.getItem(
-          'calculasTypingHistory'
-        );
-
-      var data =
-        raw
-          ? JSON.parse(raw)
-          : [];
-
-      return Array.isArray(
-        data
-      )
-        ? data
-        : [];
-    } catch (error) {
-      return [];
-    }
   }
 
   function renderHistory(
@@ -1338,7 +1471,10 @@
     }
 
     items
-      .slice(0, 8)
+      .slice(
+        0,
+        8
+      )
       .forEach(
         function (
           item
@@ -1378,10 +1514,6 @@
   function init() {
     cacheDom();
 
-    /*
-     * This script belongs to typing-test.html.
-     * If the container is absent, simply do nothing.
-     */
     if (!DOM.testSection) {
       return;
     }
