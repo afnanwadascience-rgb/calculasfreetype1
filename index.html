@@ -1,209 +1,197 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
+    <meta
+        name="description"
+        content="Calculas Typing — a modern typing speed and accuracy practice tool."
+    >
 
-<meta
-    name="description"
-    content="Calculas Typing — a modern typing speed and accuracy practice tool."
->
+    <title>Calculas Typing</title>
 
-<title>Calculas Typing</title>
+    <link rel="stylesheet" href="assets/style.css">
 
-<link rel="stylesheet" href="assets/style.css">
-
-<!--
-    Deferred scripts execute in document order.
-    content.js → sound.js → engine.js → app.js
--->
-<script src="assets/content.js" defer></script>
-<script src="assets/sound.js" defer></script>
-<script src="assets/engine.js" defer></script>
-<script src="assets/app.js" defer></script>
-```
-
+    <script src="assets/content.js" defer></script>
+    <script src="assets/sound.js" defer></script>
+    <script src="assets/engine.js" defer></script>
+    <script src="assets/app.js" defer></script>
 </head>
 
 <body>
 
-```
-<!-- HERO / INTRO -->
-<main id="hero-container">
+    <main id="hero-container">
 
-    <video
-        id="hero-video"
-        autoplay
-        loop
-        muted
-        playsinline
-        preload="auto"
-        aria-hidden="true"
-    >
-        <source
-            src="assets/videos/hero.mp4"
-            type="video/mp4"
+        <video
+            id="hero-video"
+            autoplay
+            loop
+            muted
+            playsinline
+            preload="auto"
+            aria-hidden="true"
         >
-        Your browser does not support HTML5 video.
-    </video>
+            <source
+                src="assets/videos/hero.mp4"
+                type="video/mp4"
+            >
+            Your browser does not support HTML5 video.
+        </video>
 
-    <div id="hero-overlay">
+        <div id="hero-overlay">
 
-        <h1>Calculas Typing</h1>
+            <h1>Calculas Typing</h1>
+
+            <button
+                id="start-btn"
+                class="btn"
+                type="button"
+            >
+                Start Typing
+            </button>
+
+            <button
+                id="sound-toggle-btn"
+                class="btn-icon"
+                type="button"
+                aria-label="Enable intro sound"
+                aria-pressed="false"
+            >
+                🔇
+            </button>
+
+        </div>
+    </main>
+
+
+    <section
+        id="typing-container"
+        class="hidden"
+        aria-label="Typing test"
+    >
+
+        <div id="mode-selector">
+
+            <button
+                type="button"
+                data-mode="standard"
+                class="mode-btn active"
+            >
+                Standard
+            </button>
+
+            <button
+                type="button"
+                data-mode="numbers"
+                class="mode-btn"
+            >
+                Numbers
+            </button>
+
+            <button
+                type="button"
+                data-mode="punctuation"
+                class="mode-btn"
+            >
+                Punctuation
+            </button>
+
+        </div>
+
+
+        <div id="stats-bar">
+
+            <div>
+                Time:
+                <span id="timer">30</span>s
+            </div>
+
+            <div>
+                WPM:
+                <span id="wpm">0</span>
+            </div>
+
+            <div>
+                Accuracy:
+                <span id="accuracy">100</span>%
+            </div>
+
+            <div>
+                Errors:
+                <span id="errors">0</span>
+            </div>
+
+        </div>
+
+
+        <div
+            id="passage-display"
+            class="passage-box"
+            tabindex="0"
+            aria-label="Typing passage"
+        ></div>
+
+
+        <input
+            type="text"
+            id="typing-input"
+            class="typing-input"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            aria-label="Type the passage here"
+        >
+
 
         <button
-            id="start-btn"
+            id="restart-btn"
             class="btn"
             type="button"
         >
-            Start Typing
+            Restart
         </button>
 
-        <button
-            id="sound-toggle-btn"
-            class="btn-icon"
-            type="button"
-            aria-label="Enable intro sound"
-            aria-pressed="false"
-        >
-            🔇
-        </button>
-
-    </div>
-</main>
+    </section>
 
 
-<!-- TYPING TEST -->
-<section
-    id="typing-container"
-    class="hidden"
-    aria-label="Typing test"
->
+    <section
+        id="results-container"
+        class="hidden"
+        aria-label="Typing results"
+    >
 
-    <div id="mode-selector">
+        <h2>Results</h2>
 
-        <button
-            type="button"
-            data-mode="standard"
-            class="mode-btn active"
-        >
-            Standard
-        </button>
-
-        <button
-            type="button"
-            data-mode="numbers"
-            class="mode-btn"
-        >
-            Numbers
-        </button>
-
-        <button
-            type="button"
-            data-mode="punctuation"
-            class="mode-btn"
-        >
-            Punctuation
-        </button>
-
-    </div>
-
-
-    <div id="stats-bar">
-
-        <div>
-            Time:
-            <span id="timer">30</span>s
-        </div>
-
-        <div>
+        <p>
             WPM:
-            <span id="wpm">0</span>
-        </div>
+            <span id="final-wpm">0</span>
+        </p>
 
-        <div>
+        <p>
             Accuracy:
-            <span id="accuracy">100</span>%
-        </div>
+            <span id="final-accuracy">0</span>%
+        </p>
 
-        <div>
+        <p>
             Errors:
-            <span id="errors">0</span>
-        </div>
+            <span id="final-errors">0</span>
+        </p>
 
-    </div>
+        <button
+            id="results-restart-btn"
+            class="btn"
+            type="button"
+        >
+            Try Again
+        </button>
 
-
-    <div
-        id="passage-display"
-        class="passage-box"
-        tabindex="0"
-        aria-label="Typing passage"
-    ></div>
-
-
-    <input
-        type="text"
-        id="typing-input"
-        class="typing-input"
-        autocomplete="off"
-        autocapitalize="off"
-        autocorrect="off"
-        spellcheck="false"
-        aria-label="Type the passage here"
-    >
-
-
-    <button
-        id="restart-btn"
-        class="btn"
-        type="button"
-    >
-        Restart
-    </button>
-
-</section>
-
-
-<!-- RESULTS -->
-<section
-    id="results-container"
-    class="hidden"
-    aria-label="Typing results"
->
-
-    <h2>Results</h2>
-
-    <p>
-        WPM:
-        <span id="final-wpm">0</span>
-    </p>
-
-    <p>
-        Accuracy:
-        <span id="final-accuracy">0</span>%
-    </p>
-
-    <p>
-        Errors:
-        <span id="final-errors">0</span>
-    </p>
-
-    <button
-        id="results-restart-btn"
-        class="btn"
-        type="button"
-    >
-        Try Again
-    </button>
-
-</section>
-
+    </section>
 
 </body>
 </html>
