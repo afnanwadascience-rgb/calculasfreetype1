@@ -1,5 +1,4 @@
-
-/*! Calculas Typing app - dedicated typing-test controller. */
+/*! Calculas Typing app - dedicated typing test controller. */
 (function () {
   'use strict';
 
@@ -9,19 +8,19 @@
     mode: 'standard',
     engine: null,
     timerId: null,
-    finished: false,
     started: false,
+    finished: false,
     words: []
   };
 
   var DOM = {};
 
-  function cacheDom() {
+  function cacheRoot() {
     DOM.testSection =
       document.getElementById('typing-test');
   }
 
-  function buildTestUI() {
+  function buildUI() {
     if (!DOM.testSection) return;
 
     DOM.testSection.innerHTML = [
@@ -31,97 +30,25 @@
           '<div class="tt-bar">',
 
             '<div class="chips" role="group" aria-label="Typing mode">',
-
-              '<button',
-                ' type="button"',
-                ' class="chip mode active"',
-                ' data-mode="standard"',
-                ' aria-pressed="true"',
-              '>',
-                'Standard',
-              '</button>',
-
-              '<button',
-                ' type="button"',
-                ' class="chip mode"',
-                ' data-mode="numbers"',
-                ' aria-pressed="false"',
-              '>',
-                'Numbers',
-              '</button>',
-
-              '<button',
-                ' type="button"',
-                ' class="chip mode"',
-                ' data-mode="punctuation"',
-                ' aria-pressed="false"',
-              '>',
-                'Punctuation',
-              '</button>',
-
+              '<button type="button" class="chip mode active" data-mode="standard" aria-pressed="true">Standard</button>',
+              '<button type="button" class="chip mode" data-mode="numbers" aria-pressed="false">Numbers</button>',
+              '<button type="button" class="chip mode" data-mode="punctuation" aria-pressed="false">Punctuation</button>',
             '</div>',
 
-            '<div class="chips duration-controls" role="group" aria-label="Test duration">',
-
+            '<div class="chips" role="group" aria-label="Test duration">',
               '<span class="st-l">TIME</span>',
-
-              '<button',
-                ' type="button"',
-                ' class="chip duration-btn"',
-                ' data-duration="15"',
-                ' aria-pressed="false"',
-              '>',
-                '15s',
-              '</button>',
-
-              '<button',
-                ' type="button"',
-                ' class="chip duration-btn active"',
-                ' data-duration="30"',
-                ' aria-pressed="true"',
-              '>',
-                '30s',
-              '</button>',
-
-              '<button',
-                ' type="button"',
-                ' class="chip duration-btn"',
-                ' data-duration="60"',
-                ' aria-pressed="false"',
-              '>',
-                '60s',
-              '</button>',
-
+              '<button type="button" class="chip duration active" data-duration="15" aria-pressed="false">15s</button>',
+              '<button type="button" class="chip duration active-selected" data-duration="30" aria-pressed="true">30s</button>',
+              '<button type="button" class="chip duration" data-duration="60" aria-pressed="false">60s</button>',
             '</div>',
 
             '<div class="tog">',
-
-              '<button',
-                ' type="button"',
-                ' class="chip"',
-                ' id="sound-toggle"',
-                ' aria-pressed="false"',
-                ' aria-label="Typewriter Sound off"',
-              '>',
-                '🔇 Typewriter Sound',
-              '</button>',
-
+              '<button type="button" class="chip" id="sound-toggle" aria-pressed="false">🔇 Typewriter Sound</button>',
             '</div>',
 
             '<label class="cd" for="sound-vol">',
-
               '<span class="st-l">Volume</span>',
-
-              '<input',
-                ' id="sound-vol"',
-                ' type="range"',
-                ' min="0"',
-                ' max="100"',
-                ' step="1"',
-                ' value="55"',
-                ' aria-label="Typewriter Sound volume"',
-              '>',
-
+              '<input id="sound-vol" type="range" min="0" max="100" value="55" step="1" aria-label="Typewriter Sound volume">',
             '</label>',
 
           '</div>',
@@ -129,22 +56,22 @@
           '<div class="tt-stats" aria-live="polite">',
 
             '<div class="st">',
-              '<span class="st-v" data-s="time">00:30</span>',
+              '<span class="st-v" id="time">00:30</span>',
               '<span class="st-l">TIME</span>',
             '</div>',
 
             '<div class="st">',
-              '<span class="st-v" data-s="wpm">0</span>',
+              '<span class="st-v" id="wpm">0</span>',
               '<span class="st-l">WPM</span>',
             '</div>',
 
             '<div class="st">',
-              '<span class="st-v" data-s="acc">100%</span>',
+              '<span class="st-v" id="accuracy">100%</span>',
               '<span class="st-l">ACCURACY</span>',
             '</div>',
 
             '<div class="st">',
-              '<span class="st-v" data-s="bad">0</span>',
+              '<span class="st-v" id="errors">0</span>',
               '<span class="st-l">ERRORS</span>',
             '</div>',
 
@@ -156,15 +83,11 @@
 
           '<div class="tt-area" id="typing-area">',
 
-            '<div',
-              ' class="tt-text"',
-              ' id="passage"',
-              ' aria-hidden="true"',
-            '></div>',
+            '<div id="passage" class="tt-text" aria-hidden="true"></div>',
 
             '<textarea',
-              ' class="tt-input"',
               ' id="typing-input"',
+              ' class="tt-input"',
               ' autocomplete="off"',
               ' autocapitalize="off"',
               ' autocorrect="off"',
@@ -175,76 +98,51 @@
           '</div>',
 
           '<p class="tt-hint">',
-            'Click the text and start typing. The timer begins with your first key.',
+            'Click the passage and start typing. The timer begins with your first key.',
           '</p>',
 
           '<p class="touch-note">',
-            'For the best experience, use a physical keyboard.',
+            'Use a physical keyboard for the best experience.',
           '</p>',
 
           '<div class="tt-result" hidden aria-live="polite">',
 
             '<div class="res-main">',
-
               '<div>',
-                '<strong data-r="wpm">0</strong>',
+                '<strong id="result-wpm">0</strong>',
                 '<span>WPM</span>',
               '</div>',
-
               '<div>',
-                '<strong data-r="acc">100%</strong>',
+                '<strong id="result-accuracy">100%</strong>',
                 '<span>Accuracy</span>',
               '</div>',
-
             '</div>',
 
             '<dl class="res-grid">',
-
               '<div>',
                 '<dt>Errors</dt>',
-                '<dd data-r="bad">0</dd>',
+                '<dd id="result-errors">0</dd>',
               '</div>',
-
               '<div>',
                 '<dt>Mode</dt>',
-                '<dd data-r="mode">Standard</dd>',
+                '<dd id="result-mode">Standard</dd>',
               '</div>',
-
               '<div>',
                 '<dt>Duration</dt>',
-                '<dd data-r="duration">30.0s</dd>',
+                '<dd id="result-duration">30.0s</dd>',
               '</div>',
-
             '</dl>',
 
-            '<p class="res-note" data-r="note">',
-              'Keep a steady rhythm and focus on accuracy.',
-            '</p>',
-
             '<div class="res-actions">',
-
-              '<button',
-                ' type="button"',
-                ' class="btn primary"',
-                ' data-act="again"',
-              '>',
-                'Try again',
-              '</button>',
-
-              '<a href="index.html" class="btn">',
-                'Home',
-              '</a>',
-
+              '<button type="button" class="btn primary" id="try-again">Try again</button>',
+              '<a href="index.html" class="btn">Home</a>',
             '</div>',
 
           '</div>',
 
         '</div>',
 
-        '<section',
-          ' class="section"',
-          ' aria-labelledby="progress-heading"',
-        '>',
+        '<section class="section" aria-labelledby="progress-heading">',
 
           '<div class="section-heading">',
             '<div class="eyebrow">PROGRESS</div>',
@@ -252,27 +150,19 @@
           '</div>',
 
           '<div class="grid">',
-
             '<div class="metric-panel">',
               '<span class="st-l">Best WPM</span>',
-              '<div class="st-v" id="bestWpm">0</div>',
+              '<div class="st-v" id="best-wpm">0</div>',
             '</div>',
-
             '<div class="metric-panel">',
               '<span class="st-l">Tests completed</span>',
-              '<div class="st-v" id="testCount">0</div>',
+              '<div class="st-v" id="test-count">0</div>',
             '</div>',
-
           '</div>',
 
           '<div class="metric-panel">',
-
             '<span class="st-l">History</span>',
-
-            '<div id="history">',
-              '<p>No completed tests yet.</p>',
-            '</div>',
-
+            '<div id="history"><p>No completed tests yet.</p></div>',
           '</div>',
 
         '</section>',
@@ -281,7 +171,7 @@
     ].join('');
   }
 
-  function cacheTestDom() {
+  function cacheElements() {
     DOM.modeButtons =
       document.querySelectorAll(
         '#typing-test .mode'
@@ -289,7 +179,7 @@
 
     DOM.durationButtons =
       document.querySelectorAll(
-        '#typing-test .duration-btn'
+        '#typing-test .duration'
       );
 
     DOM.soundToggle =
@@ -297,7 +187,7 @@
         'sound-toggle'
       );
 
-    DOM.volumeSlider =
+    DOM.volume =
       document.getElementById(
         'sound-vol'
       );
@@ -307,34 +197,34 @@
         'passage'
       );
 
-    DOM.typingInput =
+    DOM.input =
       document.getElementById(
         'typing-input'
       );
 
-    DOM.typingArea =
+    DOM.area =
       document.getElementById(
         'typing-area'
       );
 
     DOM.time =
-      document.querySelector(
-        '#typing-test [data-s="time"]'
+      document.getElementById(
+        'time'
       );
 
     DOM.wpm =
-      document.querySelector(
-        '#typing-test [data-s="wpm"]'
+      document.getElementById(
+        'wpm'
       );
 
     DOM.accuracy =
-      document.querySelector(
-        '#typing-test [data-s="acc"]'
+      document.getElementById(
+        'accuracy'
       );
 
     DOM.errors =
-      document.querySelector(
-        '#typing-test [data-s="bad"]'
+      document.getElementById(
+        'errors'
       );
 
     DOM.progress =
@@ -348,701 +238,58 @@
       );
 
     DOM.resultWpm =
-      document.querySelector(
-        '[data-r="wpm"]'
+      document.getElementById(
+        'result-wpm'
       );
 
-    DOM.resultAcc =
-      document.querySelector(
-        '[data-r="acc"]'
+    DOM.resultAccuracy =
+      document.getElementById(
+        'result-accuracy'
       );
 
-    DOM.resultBad =
-      document.querySelector(
-        '[data-r="bad"]'
+    DOM.resultErrors =
+      document.getElementById(
+        'result-errors'
       );
 
     DOM.resultMode =
-      document.querySelector(
-        '[data-r="mode"]'
+      document.getElementById(
+        'result-mode'
       );
 
     DOM.resultDuration =
-      document.querySelector(
-        '[data-r="duration"]'
+      document.getElementById(
+        'result-duration'
       );
 
-    DOM.resultNote =
-      document.querySelector(
-        '[data-r="note"]'
+    DOM.tryAgain =
+      document.getElementById(
+        'try-again'
       );
 
-    DOM.again =
-      document.querySelector(
-        '[data-act="again"]'
+    DOM.bestWpm =
+      document.getElementById(
+        'best-wpm'
+      );
+
+    DOM.testCount =
+      document.getElementById(
+        'test-count'
       );
 
     DOM.history =
       document.getElementById(
         'history'
       );
-
-    DOM.bestWpm =
-      document.getElementById(
-        'bestWpm'
-      );
-
-    DOM.testCount =
-      document.getElementById(
-        'testCount'
-      );
   }
 
-  function setupModes() {
-    DOM.modeButtons.forEach(
-      function (button) {
-        button.addEventListener(
-          'click',
-          function () {
-            state.mode =
-              this.getAttribute(
-                'data-mode'
-              ) ||
-              'standard';
-
-            DOM.modeButtons.forEach(
-              function (item) {
-                var active =
-                  item === button;
-
-                item.classList.toggle(
-                  'active',
-                  active
-                );
-
-                item.setAttribute(
-                  'aria-pressed',
-                  String(active)
-                );
-              }
-            );
-
-            resetTest(
-              state.mode,
-              true
-            );
-          }
-        );
-      }
-    );
-  }
-
-  function setupDurations() {
-    DOM.durationButtons.forEach(
-      function (button) {
-        button.addEventListener(
-          'click',
-          function () {
-            var selected =
-              Number(
-                this.getAttribute(
-                  'data-duration'
-                )
-              );
-
-            if (
-              state.durations.indexOf(
-                selected
-              ) === -1
-            ) {
-              return;
-            }
-
-            state.duration =
-              selected;
-
-            DOM.durationButtons.forEach(
-              function (item) {
-                var active =
-                  item === button;
-
-                item.classList.toggle(
-                  'active',
-                  active
-                );
-
-                item.setAttribute(
-                  'aria-pressed',
-                  String(active)
-                );
-              }
-            );
-
-            resetTest(
-              state.mode,
-              true
-            );
-          }
-        );
-      }
-    );
-  }
-
-  function setupSoundControls() {
-    if (
-      typeof CalculasSound ===
-      'undefined'
-    ) {
-      console.warn(
-        '[Calculas Typing] CalculasSound is not loaded.'
-      );
-      return;
-    }
-
-    var enabled =
-      CalculasSound.isEnabled();
-
-    updateSoundButton(
-      enabled
-    );
-
-    if (DOM.soundToggle) {
-      DOM.soundToggle.addEventListener(
-        'click',
-        function () {
-          enabled = !enabled;
-
-          CalculasSound.setEnabled(
-            enabled
-          );
-
-          updateSoundButton(
-            enabled
-          );
-        }
-      );
-    }
-
-    if (DOM.volumeSlider) {
-      var initialVolume =
-        CalculasSound.getVolume();
-
-      DOM.volumeSlider.value =
-        String(
-          initialVolume
-        );
-
-      DOM.volumeSlider.addEventListener(
-        'input',
-        function () {
-          CalculasSound.setVolume(
-            Number(
-              this.value
-            )
-          );
-        }
-      );
-    }
-  }
-
-  function updateSoundButton(
-    enabled
-  ) {
-    if (!DOM.soundToggle) {
-      return;
-    }
-
-    DOM.soundToggle.textContent =
-      enabled
-        ? '🔊 Typewriter Sound'
-        : '🔇 Typewriter Sound';
-
-    DOM.soundToggle.setAttribute(
-      'aria-pressed',
-      String(enabled)
-    );
-
-    DOM.soundToggle.setAttribute(
-      'aria-label',
-      enabled
-        ? 'Typewriter Sound on, click to mute'
-        : 'Typewriter Sound off, click to enable'
-    );
-  }
-
-  function setupControls() {
-    if (DOM.again) {
-      DOM.again.addEventListener(
-        'click',
-        function () {
-          resetTest(
-            state.mode,
-            true
-          );
-        }
-      );
-    }
-
-    if (DOM.typingArea) {
-      DOM.typingArea.addEventListener(
-        'click',
-        function () {
-          focusInput(
-            0
-          );
-        }
-      );
-    }
-
-    if (DOM.passage) {
-      DOM.passage.addEventListener(
-        'click',
-        function () {
-          focusInput(
-            0
-          );
-        }
-      );
-    }
-  }
-
-  function setupTypingInput() {
-    if (!DOM.typingInput) {
-      return;
-    }
-
-    DOM.typingInput.addEventListener(
-      'keydown',
-      function (event) {
-        if (
-          state.finished ||
-          !state.engine
-        ) {
-          return;
-        }
-
-        var now =
-          performance.now();
-
-        if (
-          event.key ===
-          'Escape'
-        ) {
-          event.preventDefault();
-
-          resetTest(
-            state.mode,
-            true
-          );
-
-          return;
-        }
-
-        if (
-          event.key ===
-          'Backspace'
-        ) {
-          event.preventDefault();
-
-          if (
-            typeof state.engine.backspace ===
-            'function'
-          ) {
-            var changed =
-              state.engine.backspace();
-
-            if (changed) {
-              playSound(
-                'back'
-              );
-
-              syncInput();
-              renderHighlight();
-              updateStats(
-                now
-              );
-            }
-          }
-
-          return;
-        }
-
-        if (
-          event.key ===
-          ' '
-        ) {
-          event.preventDefault();
-
-          if (
-            typeof state.engine.space ===
-            'function'
-          ) {
-            var committed =
-              state.engine.space(
-                now
-              );
-
-            if (committed) {
-              playSound(
-                'space'
-              );
-
-              syncInput();
-              startTimerIfNeeded();
-              renderHighlight();
-              updateStats(
-                now
-              );
-              checkCompletion();
-            }
-          }
-
-          return;
-        }
-
-        if (
-          event.key.length !== 1 ||
-          event.ctrlKey ||
-          event.altKey ||
-          event.metaKey
-        ) {
-          return;
-        }
-
-        event.preventDefault();
-
-        /*
-         * The real engine API is .type().
-         */
-        if (
-          typeof state.engine.type ===
-          'function'
-        ) {
-          var accepted =
-            state.engine.type(
-              event.key,
-              now
-            );
-
-          if (accepted) {
-            playSound(
-              'key'
-            );
-
-            syncInput();
-            startTimerIfNeeded();
-            renderHighlight();
-            updateStats(
-              now
-            );
-            checkCompletion();
-          }
-        }
-      }
-    );
-
-    DOM.typingInput.addEventListener(
-      'paste',
-      function (event) {
-        event.preventDefault();
-      }
-    );
-
-    DOM.typingInput.addEventListener(
-      'drop',
-      function (event) {
-        event.preventDefault();
-      }
-    );
-  }
-
-  function playSound(
-    type
-  ) {
-    if (
-      typeof CalculasSound ===
-      'undefined'
-    ) {
-      return;
-    }
-
-    if (
-      !CalculasSound.isEnabled()
-    ) {
-      return;
-    }
-
-    if (
-      type === 'key' &&
-      typeof CalculasSound.key ===
-      'function'
-    ) {
-      CalculasSound.key();
-      return;
-    }
-
-    if (
-      type === 'space' &&
-      typeof CalculasSound.space ===
-      'function'
-    ) {
-      CalculasSound.space();
-      return;
-    }
-
-    if (
-      type === 'back' &&
-      typeof CalculasSound.back ===
-      'function'
-    ) {
-      CalculasSound.back();
-    }
-  }
-
-  function shuffleCopy(
-    list
-  ) {
-    if (
-      !Array.isArray(list)
-    ) {
-      return [];
-    }
-
-    if (
-      typeof CalculasContent !==
-        'undefined' &&
-      CalculasContent.gen &&
-      typeof CalculasContent.gen.shuffle ===
-        'function'
-    ) {
-      return CalculasContent.gen.shuffle(
-        list
-      );
-    }
-
-    var copy =
-      list.slice();
-
-    for (
-      var i =
-        copy.length - 1;
-      i > 0;
-      i--
-    ) {
-      var j =
-        Math.floor(
-          Math.random() *
-          (i + 1)
-        );
-
-      var tmp =
-        copy[i];
-
-      copy[i] =
-        copy[j];
-
-      copy[j] =
-        tmp;
-    }
-
-    return copy;
-  }
-
-  function buildWords(
-    selectedMode
-  ) {
-    if (
-      typeof CalculasContent ===
-      'undefined'
-    ) {
-      return [
-        'typing',
-        'practice',
-        'builds',
-        'speed',
-        'accuracy',
-        'focus'
-      ];
-    }
-
-    /*
-     * NUMBERS MODE
-     */
-    if (
-      selectedMode ===
-        'numbers' &&
-      CalculasContent.gen &&
-      typeof CalculasContent.gen.numbers ===
-        'function'
-    ) {
-      return CalculasContent.gen.numbers(
-        160
-      );
-    }
-
-    /*
-     * PUNCTUATION MODE
-     */
-    if (
-      selectedMode ===
-        'punctuation' &&
-      CalculasContent.gen &&
-      typeof CalculasContent.gen.punctuate ===
-        'function'
-    ) {
-      var punctuationPool =
-        [];
-
-      if (
-        Array.isArray(
-          CalculasContent.common
-        )
-      ) {
-        punctuationPool =
-          shuffleCopy(
-            CalculasContent.common
-          );
-      }
-
-      if (
-        punctuationPool.length <
-        120
-      ) {
-        punctuationPool =
-          punctuationPool.concat(
-            punctuationPool
-          );
-      }
-
-      return CalculasContent.gen.punctuate(
-        punctuationPool.slice(
-          0,
-          140
-        )
-      );
-    }
-
-    /*
-     * STANDARD MODE
-     *
-     * Build a long, coherent passage
-     * from the original site's paragraphs.
-     */
-    if (
-      Array.isArray(
-        CalculasContent.paragraphs
-      ) &&
-      CalculasContent.paragraphs.length
-    ) {
-      var standardWords =
-        [];
-
-      var paragraphOrder =
-        shuffleCopy(
-          CalculasContent.paragraphs
-        );
-
-      while (
-        standardWords.length <
-        180
-      ) {
-        for (
-          var i = 0;
-          i <
-            paragraphOrder.length &&
-          standardWords.length <
-            180;
-          i++
-        ) {
-          var cleanText =
-            paragraphOrder[i];
-
-          if (
-            CalculasContent.gen &&
-            typeof CalculasContent.gen.clean ===
-              'function'
-          ) {
-            cleanText =
-              CalculasContent.gen.clean(
-                cleanText
-              );
-          }
-
-          if (
-            typeof cleanText ===
-            'string'
-          ) {
-            standardWords =
-              standardWords.concat(
-                cleanText.split(
-                  /\s+/
-                )
-              );
-          }
-        }
-
-        paragraphOrder =
-          shuffleCopy(
-            CalculasContent.paragraphs
-          );
-      }
-
-      return standardWords
-        .filter(Boolean)
-        .slice(
-          0,
-          180
-        );
-    }
-
-    /*
-     * FALLBACK TO COMMON WORDS
-     */
-    if (
-      Array.isArray(
-        CalculasContent.common
-      )
-    ) {
-      var fallback =
-        [];
-
-      while (
-        fallback.length <
-        160
-      ) {
-        fallback =
-          fallback.concat(
-            shuffleCopy(
-              CalculasContent.common
-            )
-          );
-      }
-
-      return fallback.slice(
-        0,
-        160
-      );
-    }
-
-    return [
-      'typing',
-      'practice',
-      'builds',
-      'speed',
-      'accuracy',
-      'focus'
-    ];
-  }
-
-  function createEngine(
-    words
-  ) {
+  function createEngine() {
     if (
       typeof CalculasEngine ===
       'undefined'
     ) {
       console.error(
-        '[Calculas Typing] CalculasEngine is not loaded.'
+        '[Calculas Typing] engine.js did not load.'
       );
 
       return null;
@@ -1060,8 +307,11 @@
     }
 
     try {
+      /*
+       * THIS IS THE CORRECT ENGINE API.
+       */
       return CalculasEngine.create(
-        words,
+        state.words,
         {
           duration:
             state.duration
@@ -1077,88 +327,225 @@
     }
   }
 
+  function shuffle(list) {
+    var copy =
+      Array.isArray(list)
+        ? list.slice()
+        : [];
+
+    for (
+      var i =
+        copy.length - 1;
+      i > 0;
+      i--
+    ) {
+      var j =
+        Math.floor(
+          Math.random() *
+          (i + 1)
+        );
+
+      var temp =
+        copy[i];
+
+      copy[i] =
+        copy[j];
+
+      copy[j] =
+        temp;
+    }
+
+    return copy;
+  }
+
+  function buildStandardWords() {
+    if (
+      typeof CalculasContent ===
+      'undefined'
+    ) {
+      return [
+        'Typing',
+        'practice',
+        'helps',
+        'you',
+        'build',
+        'speed',
+        'accuracy',
+        'and',
+        'focus'
+      ];
+    }
+
+    var output = [];
+
+    var paragraphs =
+      Array.isArray(
+        CalculasContent.paragraphs
+      )
+        ? shuffle(
+            CalculasContent.paragraphs
+          )
+        : [];
+
+    while (
+      output.length < 180 &&
+      paragraphs.length
+    ) {
+      for (
+        var i = 0;
+        i < paragraphs.length &&
+        output.length < 180;
+        i++
+      ) {
+        var paragraph =
+          paragraphs[i];
+
+        if (
+          CalculasContent.gen &&
+          typeof CalculasContent.gen.clean ===
+            'function'
+        ) {
+          paragraph =
+            CalculasContent.gen.clean(
+              paragraph
+            );
+        }
+
+        if (
+          typeof paragraph ===
+          'string'
+        ) {
+          output =
+            output.concat(
+              paragraph.split(
+                /\s+/
+              )
+            );
+        }
+      }
+
+      paragraphs =
+        shuffle(
+          CalculasContent.paragraphs
+        );
+    }
+
+    return output
+      .filter(Boolean)
+      .slice(
+        0,
+        180
+      );
+  }
+
+  function buildWords() {
+    if (
+      typeof CalculasContent ===
+      'undefined'
+    ) {
+      return buildStandardWords();
+    }
+
+    if (
+      state.mode ===
+        'numbers' &&
+      CalculasContent.gen &&
+      typeof CalculasContent.gen.numbers ===
+        'function'
+    ) {
+      return CalculasContent.gen.numbers(
+        180
+      );
+    }
+
+    if (
+      state.mode ===
+        'punctuation' &&
+      CalculasContent.gen &&
+      typeof CalculasContent.gen.punctuate ===
+        'function'
+    ) {
+      var common =
+        Array.isArray(
+          CalculasContent.common
+        )
+          ? CalculasContent.common
+          : [];
+
+      var selected =
+        CalculasContent.gen.pick(
+          common,
+          180
+        );
+
+      return CalculasContent.gen.punctuate(
+        selected
+      );
+    }
+
+    return buildStandardWords();
+  }
+
   function resetTest(
-    mode,
-    shouldFocus
+    focus
   ) {
-    state.mode =
-      mode || 'standard';
-
-    state.finished = false;
-    state.started = false;
-
     stopTimer();
 
+    state.started =
+      false;
+
+    state.finished =
+      false;
+
     state.words =
-      buildWords(
-        state.mode
-      );
+      buildWords();
 
     state.engine =
-      createEngine(
-        state.words
-      );
+      createEngine();
+
+    if (DOM.input) {
+      DOM.input.value =
+        '';
+    }
 
     if (DOM.result) {
       DOM.result.hidden =
         true;
     }
 
-    if (DOM.typingInput) {
-      DOM.typingInput.value =
-        '';
-    }
-
     resetStats();
+
     renderPassage();
 
-    if (
-      shouldFocus
-    ) {
-      focusInput(
-        40
-      );
+    if (focus) {
+      focusInput(50);
     }
   }
 
   function resetStats() {
-    if (DOM.time) {
-      DOM.time.textContent =
-        '00:' +
-        String(
-          state.duration
-        ).padStart(
-          2,
-          '0'
-        );
-    }
+    DOM.time.textContent =
+      '00:' +
+      String(
+        state.duration
+      ).padStart(
+        2,
+        '0'
+      );
 
-    if (DOM.wpm) {
-      DOM.wpm.textContent =
-        '0';
-    }
+    DOM.wpm.textContent =
+      '0';
 
-    if (DOM.accuracy) {
-      DOM.accuracy.textContent =
-        '100%';
-    }
+    DOM.accuracy.textContent =
+      '100%';
 
-    if (DOM.errors) {
-      DOM.errors.textContent =
-        '0';
-    }
+    DOM.errors.textContent =
+      '0';
 
-    if (DOM.progress) {
-      DOM.progress.style.width =
-        '0%';
-    }
+    DOM.progress.style.width =
+      '0%';
   }
 
   function renderPassage() {
-    if (!DOM.passage) {
-      return;
-    }
-
     DOM.passage.innerHTML =
       '';
 
@@ -1167,6 +554,11 @@
         word,
         wordIndex
       ) {
+        var word =
+          String(
+            word
+          );
+
         var wordNode =
           document.createElement(
             'span'
@@ -1182,8 +574,7 @@
 
         for (
           var i = 0;
-          i <
-          word.length;
+          i < word.length;
           i++
         ) {
           var charNode =
@@ -1195,9 +586,7 @@
             'c';
 
           charNode.textContent =
-            word.charAt(
-              i
-            );
+            word.charAt(i);
 
           wordNode.appendChild(
             charNode
@@ -1226,55 +615,45 @@
 
   function renderHighlight() {
     if (
-      !state.engine ||
-      !DOM.passage
+      !state.engine
     ) {
       return;
     }
 
-    if (
-      typeof state.engine.index !==
-        'function' ||
-      typeof state.engine.buffer !==
-        'function'
-    ) {
-      return;
-    }
-
-    var currentIndex =
+    var currentWordIndex =
       state.engine.index();
 
-    var currentBuffer =
+    var buffer =
       state.engine.buffer();
 
-    var wordElements =
+    var wordNodes =
       DOM.passage.querySelectorAll(
         '.w'
       );
 
-    wordElements.forEach(
+    wordNodes.forEach(
       function (
-        wordElement,
+        wordNode,
         wordIndex
       ) {
-        var characters =
-          wordElement.querySelectorAll(
+        var chars =
+          wordNode.querySelectorAll(
             '.c'
           );
 
-        characters.forEach(
+        chars.forEach(
           function (
-            charElement,
+            charNode,
             charIndex
           ) {
-            charElement.className =
+            charNode.className =
               'c';
 
             if (
               wordIndex <
-              currentIndex
+              currentWordIndex
             ) {
-              charElement.classList.add(
+              charNode.classList.add(
                 'ok'
               );
 
@@ -1283,7 +662,7 @@
 
             if (
               wordIndex !==
-              currentIndex
+              currentWordIndex
             ) {
               return;
             }
@@ -1295,25 +674,31 @@
 
             if (
               charIndex <
-              currentBuffer.length
+              buffer.length
             ) {
-              charElement.classList.add(
-                currentBuffer.charAt(
+              if (
+                buffer.charAt(
                   charIndex
                 ) ===
-                  target.charAt(
-                    charIndex
-                  )
-                  ? 'ok'
-                  : 'no'
-              );
+                target.charAt(
+                  charIndex
+                )
+              ) {
+                charNode.classList.add(
+                  'ok'
+                );
+              } else {
+                charNode.classList.add(
+                  'no'
+                );
+              }
             }
 
             if (
               charIndex ===
-              currentBuffer.length
+              buffer.length
             ) {
-              charElement.classList.add(
+              charNode.classList.add(
                 'cur'
               );
             }
@@ -1321,40 +706,6 @@
         );
       }
     );
-
-    /*
-     * Keep the active word in view.
-     */
-    var activeWord =
-      DOM.passage.querySelector(
-        '.w[data-word="' +
-          currentIndex +
-          '"]'
-      );
-
-    if (
-      activeWord &&
-      typeof activeWord.scrollIntoView ===
-        'function'
-    ) {
-      var passageRect =
-        DOM.passage.getBoundingClientRect();
-
-      var wordRect =
-        activeWord.getBoundingClientRect();
-
-      if (
-        wordRect.bottom >
-          passageRect.bottom - 20 ||
-        wordRect.top <
-          passageRect.top + 20
-      ) {
-        activeWord.scrollIntoView({
-          block:
-            'center'
-        });
-      }
-    }
   }
 
   function focusInput(
@@ -1362,23 +713,30 @@
   ) {
     window.setTimeout(
       function () {
-        if (
-          DOM.typingInput
-        ) {
-          DOM.typingInput.focus({
+        if (DOM.input) {
+          DOM.input.focus({
             preventScroll:
               true
           });
         }
       },
-      typeof delay ===
-        'number'
-        ? delay
-        : 0
+      delay || 0
     );
   }
 
-  function startTimerIfNeeded() {
+  function syncInput() {
+    if (
+      !DOM.input ||
+      !state.engine
+    ) {
+      return;
+    }
+
+    DOM.input.value =
+      state.engine.buffer();
+  }
+
+  function startTimer() {
     if (
       state.started ||
       !state.engine
@@ -1386,9 +744,11 @@
       return;
     }
 
+    /*
+     * The engine starts timing on the
+     * first character or committed space.
+     */
     if (
-      typeof state.engine.started !==
-        'function' ||
       !state.engine.started()
     ) {
       return;
@@ -1410,8 +770,6 @@
           );
 
           if (
-            typeof state.engine.tick ===
-              'function' &&
             state.engine.tick(
               now
             )
@@ -1441,9 +799,7 @@
     now
   ) {
     if (
-      !state.engine ||
-      typeof state.engine.snapshot !==
-        'function'
+      !state.engine
     ) {
       return;
     }
@@ -1458,130 +814,217 @@
         snapshot.elapsed
       ) || 0;
 
-    var totalMilliseconds =
-      state.duration *
-      1000;
-
     var remaining =
       Math.max(
         0,
         Math.ceil(
           (
-            totalMilliseconds -
+            state.duration *
+            1000 -
             elapsed
-          ) / 1000
+          ) /
+          1000
         )
       );
 
-    if (
-      DOM.time
-    ) {
-      DOM.time.textContent =
-        '00:' +
-        String(
-          remaining
-        ).padStart(
-          2,
-          '0'
-        );
-    }
+    DOM.time.textContent =
+      '00:' +
+      String(
+        remaining
+      ).padStart(
+        2,
+        '0'
+      );
 
-    if (
-      DOM.wpm
-    ) {
-      DOM.wpm.textContent =
-        String(
-          Math.max(
-            0,
-            Math.round(
-              Number(
-                snapshot.wpm
-              ) || 0
-            )
-          )
-        );
-    }
-
-    if (
-      DOM.accuracy
-    ) {
-      var accuracy =
-        Number(
-          snapshot.accuracy
-        );
-
-      if (
-        !isFinite(
-          accuracy
-        )
-      ) {
-        accuracy =
-          100;
-      }
-
-      DOM.accuracy.textContent =
+    DOM.wpm.textContent =
+      String(
         Math.max(
           0,
-          Math.min(
-            100,
-            Math.round(
-              accuracy
-            )
-          )
-        ) +
-        '%';
-    }
-
-    if (
-      DOM.errors
-    ) {
-      DOM.errors.textContent =
-        String(
-          Math.max(
-            0,
+          Math.round(
             Number(
-              snapshot.errors
+              snapshot.wpm
             ) || 0
           )
-        );
+        )
+      );
+
+    var accuracy =
+      Number(
+        snapshot.accuracy
+      );
+
+    if (
+      !Number.isFinite(
+        accuracy
+      )
+    ) {
+      accuracy =
+        100;
+    }
+
+    DOM.accuracy.textContent =
+      Math.max(
+        0,
+        Math.min(
+          100,
+          Math.round(
+            accuracy
+          )
+        )
+      ) +
+      '%';
+
+    DOM.errors.textContent =
+      String(
+        Math.max(
+          0,
+          Number(
+            snapshot.errors
+          ) || 0
+        )
+      );
+
+    var completed =
+      Number(
+        snapshot.words
+      ) || 0;
+
+    var total =
+      state.words.length;
+
+    DOM.progress.style.width =
+      Math.min(
+        100,
+        (
+          completed /
+          Math.max(
+            1,
+            total
+          )
+        ) *
+        100
+      ) +
+      '%';
+
+    renderHighlight();
+  }
+
+  function handleKeydown(
+    event
+  ) {
+    if (
+      state.finished ||
+      !state.engine
+    ) {
+      return;
+    }
+
+    var now =
+      performance.now();
+
+    if (
+      event.key ===
+      'Escape'
+    ) {
+      event.preventDefault();
+
+      resetTest(
+        true
+      );
+
+      return;
     }
 
     if (
-      DOM.progress
+      event.key ===
+      'Backspace'
     ) {
-      var completedWords =
-        Number(
-          snapshot.words
-        ) || 0;
+      event.preventDefault();
 
-      var totalWords =
-        typeof state.engine.count ===
-        'function'
-          ? state.engine.count()
-          : state.words.length;
+      if (
+        state.engine.backspace()
+      ) {
+        playSound(
+          'back'
+        );
 
-      var percentage =
-        (
-          completedWords /
-          Math.max(
-            1,
-            totalWords
-          )
-        ) *
-        100;
+        syncInput();
+        renderHighlight();
+        updateStats(
+          now
+        );
+      }
 
-      DOM.progress.style.width =
-        Math.max(
-          0,
-          Math.min(
-            100,
-            percentage
-          )
-        ) +
-        '%';
+      return;
     }
 
+    if (
+      event.key ===
+      ' '
+    ) {
+      event.preventDefault();
+
+      if (
+        state.engine.space(
+          now
+        )
+      ) {
+        playSound(
+          'space'
+        );
+
+        syncInput();
+
+        startTimer();
+
+        updateStats(
+          now
+        );
+
+        renderHighlight();
+
+        checkCompletion();
+      }
+
+      return;
+    }
+
+    if (
+      event.key.length !==
+      1 ||
+      event.ctrlKey ||
+      event.altKey ||
+      event.metaKey
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+
+    /*
+     * IMPORTANT:
+     * The real engine method is .type().
+     */
+    state.engine.type(
+      event.key,
+      now
+    );
+
+    playSound(
+      'key'
+    );
+
+    syncInput();
+
+    startTimer();
+
+    updateStats(
+      now
+    );
+
     renderHighlight();
+
+    checkCompletion();
   }
 
   function checkCompletion() {
@@ -1592,12 +1035,7 @@
       return;
     }
 
-    /*
-     * The current engine exposes isFinished().
-     */
     if (
-      typeof state.engine.isFinished ===
-        'function' &&
       state.engine.isFinished()
     ) {
       finishTest();
@@ -1638,7 +1076,7 @@
       );
 
     if (
-      !isFinite(
+      !Number.isFinite(
         accuracy
       )
     ) {
@@ -1670,86 +1108,45 @@
         snapshot.elapsed
       ) || 0;
 
-    if (
-      DOM.resultWpm
-    ) {
-      DOM.resultWpm.textContent =
-        String(
-          wpm
-        );
-    }
+    DOM.resultWpm.textContent =
+      String(
+        wpm
+      );
 
-    if (
-      DOM.resultAcc
-    ) {
-      DOM.resultAcc.textContent =
-        accuracy +
-        '%';
-    }
+    DOM.resultAccuracy.textContent =
+      accuracy +
+      '%';
 
-    if (
-      DOM.resultBad
-    ) {
-      DOM.resultBad.textContent =
-        String(
-          errors
-        );
-    }
+    DOM.resultErrors.textContent =
+      String(
+        errors
+      );
 
-    if (
-      DOM.resultMode
-    ) {
-      DOM.resultMode.textContent =
-        state.mode
-          .charAt(0)
-          .toUpperCase() +
-        state.mode.slice(1);
-    }
+    DOM.resultMode.textContent =
+      state.mode
+        .charAt(0)
+        .toUpperCase() +
+      state.mode.slice(1);
 
-    if (
-      DOM.resultDuration
-    ) {
-      DOM.resultDuration.textContent =
-        (
-          elapsed /
-          1000
-        ).toFixed(
-          1
-        ) +
-        's / ' +
-        state.duration +
-        's';
-    }
+    DOM.resultDuration.textContent =
+      (
+        elapsed /
+        1000
+      ).toFixed(
+        1
+      ) +
+      's / ' +
+      state.duration +
+      's';
 
-    if (
-      DOM.resultNote
-    ) {
-      DOM.resultNote.textContent =
-        accuracy >= 95
-          ? 'Excellent accuracy. Keep the rhythm steady.'
-          : 'Focus on clean, accurate keystrokes before chasing speed.';
-    }
+    DOM.result.hidden =
+      false;
 
-    if (
-      DOM.result
-    ) {
-      DOM.result.hidden =
-        false;
-
-      DOM.result.scrollIntoView({
-        behavior:
-          'smooth',
-        block:
-          'center'
-      });
-    }
-
-    saveResult(
+    saveHistory(
       wpm,
       accuracy,
       errors,
-      elapsed,
-      state.mode
+      state.duration
     );
   }
 
@@ -1772,17 +1169,18 @@
       )
         ? parsed
         : [];
-    } catch (error) {
+    } catch (
+      error
+    ) {
       return [];
     }
   }
 
-  function saveResult(
+  function saveHistory(
     wpm,
     accuracy,
     errors,
-    elapsed,
-    mode
+    duration
   ) {
     var history =
       readHistory();
@@ -1798,23 +1196,19 @@
         errors,
 
       duration:
-        (
-          elapsed /
-          1000
-        ).toFixed(
-          1
-        ),
+        duration,
 
       mode:
-        mode,
+        state.mode,
 
-      date:
+      time:
         new Date()
           .toLocaleTimeString(
             [],
             {
               hour:
                 '2-digit',
+
               minute:
                 '2-digit'
             }
@@ -1834,8 +1228,10 @@
           history
         )
       );
-    } catch (error) {
-      /* localStorage optional */
+    } catch (
+      error
+    ) {
+      /* optional */
     }
 
     renderHistory(
@@ -1856,14 +1252,10 @@
       history ||
       readHistory();
 
-    if (
-      DOM.testCount
-    ) {
-      DOM.testCount.textContent =
-        String(
-          items.length
-        );
-    }
+    DOM.testCount.textContent =
+      String(
+        items.length
+      );
 
     var best =
       items.length
@@ -1881,14 +1273,10 @@
           )
         : 0;
 
-    if (
-      DOM.bestWpm
-    ) {
-      DOM.bestWpm.textContent =
-        String(
-          best
-        );
-    }
+    DOM.bestWpm.textContent =
+      String(
+        best
+      );
 
     DOM.history.innerHTML =
       '';
@@ -1941,7 +1329,7 @@
             ) +
             ' · ' +
             String(
-              item.date
+              item.time
             );
 
           DOM.history.appendChild(
@@ -1951,36 +1339,283 @@
       );
   }
 
-  function init() {
-    cacheDom();
+  function playSound(
+    type
+  ) {
+    if (
+      typeof CalculasSound ===
+      'undefined'
+    ) {
+      return;
+    }
 
-    /*
-     * app.js runs on the dedicated typing-test.html page.
-     */
+    if (
+      !CalculasSound.isEnabled()
+    ) {
+      return;
+    }
+
+    if (
+      type === 'key' &&
+      typeof CalculasSound.key ===
+      'function'
+    ) {
+      CalculasSound.key();
+    }
+
+    if (
+      type === 'space' &&
+      typeof CalculasSound.space ===
+      'function'
+    ) {
+      CalculasSound.space();
+    }
+
+    if (
+      type === 'back' &&
+      typeof CalculasSound.back ===
+      'function'
+    ) {
+      CalculasSound.back();
+    }
+  }
+
+  function setupSound() {
+    if (
+      typeof CalculasSound ===
+      'undefined'
+    ) {
+      return;
+    }
+
+    var enabled =
+      CalculasSound.isEnabled();
+
+    updateSoundButton(
+      enabled
+    );
+
+    if (DOM.soundToggle) {
+      DOM.soundToggle.addEventListener(
+        'click',
+        function () {
+          enabled =
+            !enabled;
+
+          CalculasSound.setEnabled(
+            enabled
+          );
+
+          updateSoundButton(
+            enabled
+          );
+        }
+      );
+    }
+
+    if (DOM.volume) {
+      DOM.volume.value =
+        String(
+          CalculasSound.getVolume()
+        );
+
+      DOM.volume.addEventListener(
+        'input',
+        function () {
+          CalculasSound.setVolume(
+            Number(
+              this.value
+            )
+          );
+        }
+      );
+    }
+  }
+
+  function updateSoundButton(
+    enabled
+  ) {
+    if (
+      !DOM.soundToggle
+    ) {
+      return;
+    }
+
+    DOM.soundToggle.textContent =
+      enabled
+        ? '🔊 Typewriter Sound'
+        : '🔇 Typewriter Sound';
+
+    DOM.soundToggle.setAttribute(
+      'aria-pressed',
+      String(
+        enabled
+      )
+    );
+  }
+
+  function setupModes() {
+    DOM.modeButtons.forEach(
+      function (
+        button
+      ) {
+        button.addEventListener(
+          'click',
+          function () {
+            state.mode =
+              this.getAttribute(
+                'data-mode'
+              ) ||
+              'standard';
+
+            DOM.modeButtons.forEach(
+              function (
+                item
+              ) {
+                var active =
+                  item === button;
+
+                item.classList.toggle(
+                  'active',
+                  active
+                );
+
+                item.setAttribute(
+                  'aria-pressed',
+                  String(
+                    active
+                  )
+                );
+              }
+            );
+
+            resetTest(
+              true
+            );
+          }
+        );
+      }
+    );
+  }
+
+  function setupDurations() {
+    DOM.durationButtons.forEach(
+      function (
+        button
+      ) {
+        button.addEventListener(
+          'click',
+          function () {
+            var value =
+              Number(
+                this.getAttribute(
+                  'data-duration'
+                )
+              );
+
+            if (
+              state.durations.indexOf(
+                value
+              ) === -1
+            ) {
+              return;
+            }
+
+            state.duration =
+              value;
+
+            DOM.durationButtons.forEach(
+              function (
+                item
+              ) {
+                var active =
+                  item === button;
+
+                item.classList.toggle(
+                  'active-selected',
+                  active
+                );
+
+                item.setAttribute(
+                  'aria-pressed',
+                  String(
+                    active
+                  )
+                );
+              }
+            );
+
+            resetTest(
+              true
+            );
+          }
+        );
+      }
+    );
+  }
+
+  function init() {
+    cacheRoot();
+
     if (
       !DOM.testSection
     ) {
       return;
     }
 
-    buildTestUI();
-    cacheTestDom();
+    buildUI();
+    cacheElements();
 
     setupModes();
     setupDurations();
-    setupSoundControls();
-    setupControls();
-    setupTypingInput();
+    setupSound();
+
+    if (DOM.input) {
+      DOM.input.addEventListener(
+        'keydown',
+        handleKeydown
+      );
+
+      DOM.input.addEventListener(
+        'paste',
+        function (
+          event
+        ) {
+          event.preventDefault();
+        }
+      );
+    }
+
+    if (DOM.area) {
+      DOM.area.addEventListener(
+        'click',
+        function () {
+          focusInput(
+            0
+          );
+        }
+      );
+    }
+
+    if (DOM.tryAgain) {
+      DOM.tryAgain.addEventListener(
+        'click',
+        function () {
+          resetTest(
+            true
+          );
+        }
+      );
+    }
 
     renderHistory();
 
     resetTest(
-      'standard',
       false
     );
 
     console.log(
-      '[Calculas Typing] Dedicated typing test ready.'
+      '[Calculas Typing] Typing test initialized successfully.'
     );
   }
 
@@ -1996,4 +1631,3 @@
     init();
   }
 })();
-
