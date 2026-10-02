@@ -1,197 +1,87 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="description"
-        content="Calculas Typing — a modern typing speed and accuracy practice tool."
-    >
-
-    <title>Calculas Typing</title>
-
-    <link rel="stylesheet" href="assets/style.css">
-
-    <script src="assets/content.js" defer></script>
-    <script src="assets/sound.js" defer></script>
-    <script src="assets/engine.js" defer></script>
-    <script src="assets/app.js" defer></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Calculas Typing</title>
+  <meta name="description" content="Premium typing practice platform focused on speed, accuracy, and progress">
+  <meta name="theme-color" content="#0d0e10">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    :root {
+      --sans: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+  </style>
 </head>
-
 <body>
+  <a class="skip" href="#main">Skip to main content</a>
 
-    <main id="hero-container">
+  <header class="hero-header">
+    <div class="hero-bg">
+      <video class="hero-video" muted autoplay loop playsinline preload="metadata" id="heroVideo" aria-hidden="true">
+        <source src="assets/videos/hero.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <div class="hero-vignette"></div>
 
-        <video
-            id="hero-video"
-            autoplay
-            loop
-            muted
-            playsinline
-            preload="auto"
-            aria-hidden="true"
-        >
-            <source
-                src="assets/videos/hero.mp4"
-                type="video/mp4"
-            >
-            Your browser does not support HTML5 video.
-        </video>
+      <div class="hero-content">
+        <p class="hero-eyebrow">CALCULAS / TYPING</p>
+        <h1 class="hero-headline">Type faster.<br><span>Think sharper.</span></h1>
+        <p class="hero-copy">A focused typing experience built around speed, accuracy, and progress.</p>
+        <a id="start-typing" class="hero-cta primary-btn" href="#typing-test">Start typing</a>
+      </div>
 
-        <div id="hero-overlay">
+      <div class="hero-scroll">SCROLL TO BEGIN</div>
+    </div>
+  </header>
 
-            <h1>Calculas Typing</h1>
+  <main id="main">
+    <section class="typing-test" id="typing-test" aria-label="Typing test"></section>
+  </main>
 
-            <button
-                id="start-btn"
-                class="btn"
-                type="button"
-            >
-                Start Typing
-            </button>
-
-            <button
-                id="sound-toggle-btn"
-                class="btn-icon"
-                type="button"
-                aria-label="Enable intro sound"
-                aria-pressed="false"
-            >
-                🔇
-            </button>
-
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="cols">
+        <div>
+          <h2>Typing tests</h2>
+          <ul>
+            <li><a href="#typing-test">Typing test</a></li>
+            <li><a href="#typing-test">Timed test</a></li>
+            <li><a href="#typing-test">Word count test</a></li>
+            <li><a href="#typing-test">Quote test</a></li>
+            <li><a href="#typing-test">Paragraph test</a></li>
+            <li><a href="#typing-test">Numbers test</a></li>
+            <li><a href="#typing-test">Punctuation test</a></li>
+          </ul>
         </div>
-    </main>
-
-
-    <section
-        id="typing-container"
-        class="hidden"
-        aria-label="Typing test"
-    >
-
-        <div id="mode-selector">
-
-            <button
-                type="button"
-                data-mode="standard"
-                class="mode-btn active"
-            >
-                Standard
-            </button>
-
-            <button
-                type="button"
-                data-mode="numbers"
-                class="mode-btn"
-            >
-                Numbers
-            </button>
-
-            <button
-                type="button"
-                data-mode="punctuation"
-                class="mode-btn"
-            >
-                Punctuation
-            </button>
-
+        <div>
+          <h2>Learn</h2>
+          <ul>
+            <li><a href="#typing-test">Typing practice</a></li>
+            <li><a href="#typing-test">WPM test</a></li>
+            <li><a href="#typing-test">How WPM is calculated</a></li>
+          </ul>
         </div>
-
-
-        <div id="stats-bar">
-
-            <div>
-                Time:
-                <span id="timer">30</span>s
-            </div>
-
-            <div>
-                WPM:
-                <span id="wpm">0</span>
-            </div>
-
-            <div>
-                Accuracy:
-                <span id="accuracy">100</span>%
-            </div>
-
-            <div>
-                Errors:
-                <span id="errors">0</span>
-            </div>
-
+        <div>
+          <h2>Calculas Typing</h2>
+          <ul>
+            <li><a href="#typing-test">About</a></li>
+            <li><a href="#typing-test">Privacy policy</a></li>
+            <li><a href="#typing-test">Terms</a></li>
+          </ul>
         </div>
+      </div>
+      <p>Test. Practice. Improve. &copy; 2026 Calculas Typing. Typing tests run in your browser and what you type is never uploaded.</p>
+    </div>
+  </footer>
 
-
-        <div
-            id="passage-display"
-            class="passage-box"
-            tabindex="0"
-            aria-label="Typing passage"
-        ></div>
-
-
-        <input
-            type="text"
-            id="typing-input"
-            class="typing-input"
-            autocomplete="off"
-            autocapitalize="off"
-            autocorrect="off"
-            spellcheck="false"
-            aria-label="Type the passage here"
-        >
-
-
-        <button
-            id="restart-btn"
-            class="btn"
-            type="button"
-        >
-            Restart
-        </button>
-
-    </section>
-
-
-    <section
-        id="results-container"
-        class="hidden"
-        aria-label="Typing results"
-    >
-
-        <h2>Results</h2>
-
-        <p>
-            WPM:
-            <span id="final-wpm">0</span>
-        </p>
-
-        <p>
-            Accuracy:
-            <span id="final-accuracy">0</span>%
-        </p>
-
-        <p>
-            Errors:
-            <span id="final-errors">0</span>
-        </p>
-
-        <button
-            id="results-restart-btn"
-            class="btn"
-            type="button"
-        >
-            Try Again
-        </button>
-
-    </section>
-
+  <script src="assets/engine.js"></script>
+  <script src="assets/content.js"></script>
+  <script src="assets/sound.js"></script>
+  <script src="assets/app.js"></script>
 </body>
 </html>
